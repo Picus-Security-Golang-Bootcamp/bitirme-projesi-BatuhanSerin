@@ -16,6 +16,7 @@ func NewUserHandler(r *gin.RouterGroup, repo *UserRepository) {
 	u := &userHandler{repo: repo}
 
 	r.POST("/login", u.login)
+	r.POST("/verify", u.VerifyToken)
 }
 
 func (u *userHandler) login(c *gin.Context) {
@@ -33,12 +34,18 @@ func (u *userHandler) login(c *gin.Context) {
 			"message": "Unauthorized",
 		})
 	}
-	token, err := u.repo.Login(a.Email, a.Password)
+	userInfo, token, err := u.repo.Login(a.Email, a.Password)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "Internal Server Error",
 		})
 	}
+
+	c.JSON(http.StatusOK, userInfo)
 	c.JSON(http.StatusOK, token)
 
+}
+
+func (u *userHandler) VerifyToken(c *gin.Context) {
+	u.repo.VerifyToken(c)
 }

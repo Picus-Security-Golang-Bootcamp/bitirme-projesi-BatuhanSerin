@@ -1,11 +1,12 @@
 package User
 
 import (
-	"log"
+	"net/http"
 	"time"
 
 	"github.com/BatuhanSerin/final-project/internal/models"
 	jwtPackage "github.com/BatuhanSerin/final-project/package/jwt"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -63,10 +64,10 @@ func (u *UserRepository) getUser(email, password *string) (*models.User, error) 
 	return nil, nil
 }
 
-func (r *UserRepository) Login(email, password string) (string, error) {
+func (r *UserRepository) Login(email, password string) (jwt.Claims, string, error) {
 	var user *models.User
 	if err := r.db.Where("email = ? AND password = ?", email, password).First(&user).Error; err != nil {
-		return "", err
+		return nil, "", err
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -76,7 +77,26 @@ func (r *UserRepository) Login(email, password string) (string, error) {
 		"exp":    time.Now().Add(time.Hour * 72).Unix(),
 	})
 
-	tokenString, _ := jwtPackage.GenerateToken(token, "secret")
-	log.Println(tokenString)
-	return tokenString, nil
+	tokenString, _ := jwtPackage.GenerateToken(token, "cfg.Config.JWTConfig.SecretKey")
+	//log.Println(tokenString)
+	return token.Claims, tokenString, nil
+}
+
+func (r *UserRepository) VerifyToken(c *gin.Context) {
+
+	tokenString := c.GetHeader("Authorization")
+	token, err := jwtPackage.ParseToken(tokenString, "cfg.Config.JWTConfig.SecretKey")
+	if err != nil {
+		c.JSON(401, gin.H{
+			"message": "Unauthorized",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Authorized",
+	})
+	c.JSON(http.StatusOK, token)
+
+	return
+
 }
