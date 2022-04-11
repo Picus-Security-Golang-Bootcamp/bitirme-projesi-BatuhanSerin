@@ -5,12 +5,15 @@ import (
 	"time"
 
 	"github.com/BatuhanSerin/final-project/internal/models"
+	"github.com/BatuhanSerin/final-project/package/config"
 	jwtPackage "github.com/BatuhanSerin/final-project/package/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
+
+var cfg *config.Config
 
 type UserRepository struct {
 	db *gorm.DB
@@ -77,7 +80,7 @@ func (r *UserRepository) Login(email, password string) (jwt.Claims, string, erro
 		"exp":    time.Now().Add(time.Hour * 72).Unix(),
 	})
 
-	tokenString, _ := jwtPackage.GenerateToken(token, "cfg.Config.JWTConfig.SecretKey")
+	tokenString, _ := jwtPackage.GenerateToken(token, "cfg.JWTConfig.SecretKey")
 	//log.Println(tokenString)
 	return token.Claims, tokenString, nil
 }
@@ -85,7 +88,7 @@ func (r *UserRepository) Login(email, password string) (jwt.Claims, string, erro
 func (r *UserRepository) VerifyToken(c *gin.Context) {
 
 	tokenString := c.GetHeader("Authorization")
-	token, err := jwtPackage.ParseToken(tokenString, "cfg.Config.JWTConfig.SecretKey")
+	token, err := jwtPackage.ParseToken(tokenString, "cfg.JWTConfig.SecretKey")
 	if err != nil {
 		c.JSON(401, gin.H{
 			"message": "Unauthorized",

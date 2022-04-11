@@ -67,7 +67,7 @@ func main() {
 	// User Repo
 	userRepo := User.NewUserRepository(DB)
 	userRepo.Migration()
-	User.NewUserHandler(userRouter, userRepo)
+	User.NewUserHandler(userRouter, userRepo, cfg)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

@@ -1,8 +1,6 @@
 package jwtoken
 
 import (
-	"log"
-
 	"github.com/golang-jwt/jwt"
 )
 
@@ -35,7 +33,7 @@ func ParseToken(tokenString string, secret string) (*jwt.MapClaims, error) {
 	decodedClaims := token.Claims.(jwt.MapClaims)
 
 	if token.Valid {
-		log.Printf("\n%v", decodedClaims)
+
 		return &decodedClaims, nil
 	}
 	return nil, nil

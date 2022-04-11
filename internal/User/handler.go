@@ -4,7 +4,9 @@ import (
 	"net/http"
 
 	"github.com/BatuhanSerin/final-project/internal/api"
-	//"github.com/BatuhanSerin/final-project/package/config"
+	"github.com/BatuhanSerin/final-project/package/middleware"
+
+	"github.com/BatuhanSerin/final-project/package/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,10 +14,11 @@ type userHandler struct {
 	repo *UserRepository
 }
 
-func NewUserHandler(r *gin.RouterGroup, repo *UserRepository) {
+func NewUserHandler(r *gin.RouterGroup, repo *UserRepository, cfg *config.Config) {
 	u := &userHandler{repo: repo}
 
 	r.POST("/login", u.login)
+	r.Use(middleware.Authorization("cfg.JWTConfig.SecretKey"))
 	r.POST("/verify", u.VerifyToken)
 }
 
