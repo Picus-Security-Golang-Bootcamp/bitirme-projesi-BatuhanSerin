@@ -2,9 +2,7 @@ package product
 
 import (
 	"encoding/csv"
-	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/BatuhanSerin/final-project/internal/api"
 	"github.com/BatuhanSerin/final-project/internal/httpErrors"
@@ -36,7 +34,6 @@ func (p *productHandler) createBulk(c *gin.Context) {
 	csvFile, err := file.Open()
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
-		log.Println("Open")
 	}
 
 	defer csvFile.Close()
@@ -44,35 +41,13 @@ func (p *productHandler) createBulk(c *gin.Context) {
 	csvLines, err := csv.NewReader(csvFile).ReadAll()
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
-		log.Println("NewReader")
 	}
-	for _, line := range csvLines[1:] {
 
-		CategoryId, _ := strconv.ParseInt(line[4], 10, 0)
-		Id, _ := strconv.ParseInt(line[0], 10, 0)
-		Price, _ := strconv.ParseFloat(line[2], 32)
-		Stock, _ := strconv.ParseInt(line[3], 10, 0)
-
-		productBody := &api.Product{
-			Category: &api.CategoryWithoutRequired{
-				ID: CategoryId,
-			},
-			ID:    Id,
-			Name:  &line[1],
-			Price: &Price,
-			Stock: &Stock,
-		}
-
-		if err := productBody.Validate(strfmt.NewFormats()); err != nil {
-			c.JSON(httpErrors.ErrorResponse(err))
-			return
-		}
-		product, err := p.repo.create(responseToProduct(productBody))
-		if err != nil {
-			c.JSON(httpErrors.ErrorResponse(err))
-		}
-		c.JSON(http.StatusOK, ProductToResponseWithoutCategory(product))
+	products, err := p.repo.createBulk(csvLines)
+	if err != nil {
+		c.JSON(httpErrors.ErrorResponse(err))
 	}
+	c.JSON(http.StatusOK, productsToResponseWithoutCategory(&products))
 
 }
 

@@ -1,7 +1,11 @@
 package product
 
 import (
+	"strconv"
+
+	"github.com/BatuhanSerin/final-project/internal/api"
 	"github.com/BatuhanSerin/final-project/internal/models"
+	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -22,6 +26,41 @@ func (r *ProductRepository) create(product *models.Product) (*models.Product, er
 		return nil, err
 	}
 	return product, nil
+}
+
+func (r *ProductRepository) createBulk(csvLines [][]string) ([]models.Product, error) {
+
+	var products = []models.Product{}
+
+	for _, line := range csvLines[1:] {
+
+		CategoryId, _ := strconv.ParseInt(line[4], 10, 0)
+		Id, _ := strconv.ParseInt(line[0], 10, 0)
+		Price, _ := strconv.ParseFloat(line[2], 32)
+		Stock, _ := strconv.ParseInt(line[3], 10, 0)
+
+		productBody := &api.Product{
+			Category: &api.CategoryWithoutRequired{
+				ID: CategoryId,
+			},
+			ID:    Id,
+			Name:  &line[1],
+			Price: &Price,
+			Stock: &Stock,
+		}
+
+		if err := productBody.Validate(strfmt.NewFormats()); err != nil {
+			zap.L().Error("product.repo.createBulk Validate Failed", zap.Error(err))
+		}
+
+		product, err := r.create(responseToProduct(productBody))
+		if err != nil {
+			zap.L().Error("product.repo.createBulk Validate Failed", zap.Error(err))
+		}
+		products = append(products, *product)
+	}
+	return products, nil
+
 }
 
 func (r *ProductRepository) getAll() (*[]models.Product, error) {
