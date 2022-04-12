@@ -57,12 +57,12 @@ func main() {
 	productRepo := product.NewProductRepository(DB)
 	//service(repo,..) create  ederken silinmişi yeniden create etsin
 	productRepo.Migration()
-	product.NewProductHandler(productRouter, productRepo)
+	product.NewProductHandler(productRouter, productRepo, config.GetSecretKey())
 
 	// Category Repo
 	categoryRepo := category.NewCategoryRepository(DB)
 	categoryRepo.Migration()
-	category.NewCategoryHandler(categoryRouter, categoryRepo)
+	category.NewCategoryHandler(categoryRouter, categoryRepo, config.GetSecretKey())
 
 	// User Repo
 	userRepo := User.NewUserRepository(DB)

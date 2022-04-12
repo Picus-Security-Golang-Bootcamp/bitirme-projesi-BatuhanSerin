@@ -6,6 +6,7 @@ import (
 
 	"github.com/BatuhanSerin/final-project/internal/api"
 	"github.com/BatuhanSerin/final-project/internal/httpErrors"
+	"github.com/BatuhanSerin/final-project/package/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/strfmt"
 )
@@ -14,12 +15,13 @@ type categoryHandler struct {
 	repo *CategoryRepository
 }
 
-func NewCategoryHandler(r *gin.RouterGroup, repo *CategoryRepository) {
+func NewCategoryHandler(r *gin.RouterGroup, repo *CategoryRepository, secret string) {
 	c := &categoryHandler{repo: repo}
 
 	//r.GET("/", h.getAll)
-	r.POST("/create", c.create)
 	r.GET("/:id", c.getByID)
+	r.Use(middleware.Authorization(secret))
+	r.POST("/create", c.create)
 	r.PUT("/:id", c.update)
 	r.DELETE("/:id", c.delete)
 }
