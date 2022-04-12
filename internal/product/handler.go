@@ -19,9 +19,20 @@ func NewProductHandler(r *gin.RouterGroup, repo *ProductRepository, secret strin
 	p := &productHandler{repo: repo}
 	r.GET("/", p.getAll)
 	r.GET("/:id", p.getByID)
+	r.GET("/search/:name", p.getByName)
 	r.Use(middleware.Authorization(secret))
 	r.POST("/create", p.create)
 	r.POST("/createBulk", p.createBulk)
+}
+func (p *productHandler) getByName(c *gin.Context) {
+	name := c.Param("name")
+
+	product, err := p.repo.getByName(name)
+	if err != nil {
+		c.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+	c.JSON(http.StatusOK, ProductToResponseWithoutCategory(product))
 }
 
 func (p *productHandler) createBulk(c *gin.Context) {

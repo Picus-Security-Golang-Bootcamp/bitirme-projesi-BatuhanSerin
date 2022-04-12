@@ -78,6 +78,19 @@ func (r *ProductRepository) getAll(c *gin.Context) (*[]models.Product, error) {
 	return products, nil
 }
 
+func (r *ProductRepository) getByName(name string) (*models.Product, error) {
+	zap.L().Debug("product.repo.getByName", zap.Any("name", name))
+
+	var product = &models.Product{}
+
+	if err := r.db.Preload("Category").Where("name LIKE ? ", "%"+name+"%").Find(&product).Error; err != nil {
+		zap.L().Error("product.repo.getByName Failed", zap.Error(err))
+		return nil, err
+	}
+
+	return product, nil
+}
+
 func (r *ProductRepository) getByID(id string) (*models.Product, error) {
 	zap.L().Debug("product.repo.getByID", zap.Any("id", id))
 
