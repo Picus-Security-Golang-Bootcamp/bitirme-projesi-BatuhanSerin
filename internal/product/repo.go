@@ -5,6 +5,8 @@ import (
 
 	"github.com/BatuhanSerin/final-project/internal/api"
 	"github.com/BatuhanSerin/final-project/internal/models"
+	page "github.com/BatuhanSerin/final-project/package/pagination"
+	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -19,7 +21,7 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 }
 
 func (r *ProductRepository) create(product *models.Product) (*models.Product, error) {
-	zap.L().Debug("product.repo.create", zap.Any("product", product))
+	//zap.L().Debug("product.repo.create", zap.Any("product", product))
 
 	if err := r.db.Create(product).Error; err != nil {
 		zap.L().Error("product.repo.create Failed", zap.Error(err))
@@ -63,12 +65,12 @@ func (r *ProductRepository) createBulk(csvLines [][]string) ([]models.Product, e
 
 }
 
-func (r *ProductRepository) getAll() (*[]models.Product, error) {
+func (r *ProductRepository) getAll(c *gin.Context) (*[]models.Product, error) {
 	zap.L().Debug("product.repo.getAll")
 
 	var products = &[]models.Product{}
 
-	if err := r.db.Preload("Category").Find(&products).Error; err != nil {
+	if err := r.db.Preload("Category").Scopes(page.Paginate(c)).Find(&products).Error; err != nil {
 		zap.L().Error("product.repo.getAll Failed", zap.Error(err))
 		return nil, err
 	}

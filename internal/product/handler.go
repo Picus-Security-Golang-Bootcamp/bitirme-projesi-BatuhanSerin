@@ -75,7 +75,7 @@ func (p *productHandler) create(c *gin.Context) {
 }
 
 func (p *productHandler) getAll(c *gin.Context) {
-	products, err := p.repo.getAll()
+	products, err := p.repo.getAll(c)
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 		return
