@@ -6,7 +6,6 @@ import (
 	"github.com/BatuhanSerin/final-project/internal/api"
 	"github.com/BatuhanSerin/final-project/package/middleware"
 
-	"github.com/BatuhanSerin/final-project/package/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,11 +13,11 @@ type userHandler struct {
 	repo *UserRepository
 }
 
-func NewUserHandler(r *gin.RouterGroup, repo *UserRepository, cfg *config.Config) {
+func NewUserHandler(r *gin.RouterGroup, repo *UserRepository, secret string) {
 	u := &userHandler{repo: repo}
 
 	r.POST("/login", u.login)
-	r.Use(middleware.Authorization("cfg.JWTConfig.SecretKey"))
+	r.Use(middleware.Authorization(secret))
 	r.POST("/verify", u.VerifyToken)
 }
 
@@ -51,4 +50,7 @@ func (u *userHandler) login(c *gin.Context) {
 
 func (u *userHandler) VerifyToken(c *gin.Context) {
 	u.repo.VerifyToken(c)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Token verified",
+	})
 }

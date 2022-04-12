@@ -1,12 +1,15 @@
 package jwtoken
 
 import (
+	"github.com/BatuhanSerin/final-project/package/config"
 	"github.com/golang-jwt/jwt"
 )
 
 type JWToken struct {
 	Secret string
 }
+
+var cfg *config.Config
 
 func NewJWToken(secret string) *JWToken {
 	return &JWToken{Secret: secret}

@@ -64,3 +64,7 @@ func LoadConfig(configFileName string) (*Config, error) {
 	return &config, nil
 
 }
+func GetSecretKey() string {
+	var config Config
+	return config.JWTConfig.SecretKey
+}
