@@ -3,6 +3,7 @@ package User
 import (
 	"net/http"
 
+	"github.com/BatuhanSerin/final-project/check"
 	"github.com/BatuhanSerin/final-project/internal/api"
 	"github.com/BatuhanSerin/final-project/internal/httpErrors"
 	"github.com/BatuhanSerin/final-project/package/middleware"
@@ -33,6 +34,14 @@ func (u *userHandler) signup(c *gin.Context) {
 
 	if err := userBody.Validate(strfmt.NewFormats()); err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+
+	phoneNumberDigits := check.CheckDigits(userBody.Phone)
+	if phoneNumberDigits == false {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Phone number must be 10 digits",
+		})
 		return
 	}
 
