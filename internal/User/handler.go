@@ -53,6 +53,20 @@ func (u *userHandler) signup(c *gin.Context) {
 
 	c.JSON(http.StatusOK, UserToResponse(user))
 
+	authorizedUser, _ := u.repo.getUser(&user.Email, &user.Password)
+	if authorizedUser == nil {
+		c.JSON(401, gin.H{
+			"message": "Unauthorized",
+		})
+	}
+
+	_, token, err := u.repo.Login(authorizedUser.Email, authorizedUser.Password)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": "Internal Server Error",
+		})
+	}
+	c.JSON(http.StatusOK, token)
 }
 
 func (u *userHandler) login(c *gin.Context) {
@@ -64,13 +78,13 @@ func (u *userHandler) login(c *gin.Context) {
 		})
 	}
 
-	a, _ := u.repo.getUser(user.Email, user.Password)
-	if a == nil {
+	authorizedUser, _ := u.repo.getUser(user.Email, user.Password)
+	if authorizedUser == nil {
 		c.JSON(401, gin.H{
 			"message": "Unauthorized",
 		})
 	}
-	userInfo, token, err := u.repo.Login(a.Email, a.Password)
+	userInfo, token, err := u.repo.Login(authorizedUser.Email, authorizedUser.Password)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "Internal Server Error",
