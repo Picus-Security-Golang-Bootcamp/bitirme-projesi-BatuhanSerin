@@ -4,7 +4,9 @@ import (
 	"net/http"
 
 	"github.com/BatuhanSerin/final-project/internal/api"
+	"github.com/BatuhanSerin/final-project/internal/httpErrors"
 	"github.com/BatuhanSerin/final-project/package/middleware"
+	"github.com/go-openapi/strfmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,8 +19,31 @@ func NewUserHandler(r *gin.RouterGroup, repo *UserRepository, secret string) {
 	u := &userHandler{repo: repo}
 
 	r.POST("/login", u.login)
+	r.POST("/signup", u.signup)
 	r.Use(middleware.Authorization(secret))
 	r.POST("/verify", u.VerifyToken)
+}
+func (u *userHandler) signup(c *gin.Context) {
+	var userBody *api.User
+
+	if err := c.Bind(&userBody); err != nil {
+		c.JSON(httpErrors.ErrorResponse(httpErrors.CannotBindGivenData))
+		return
+	}
+
+	if err := userBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+
+	user, err := u.repo.createUser(responseToUser(userBody))
+	if err != nil {
+		c.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, UserToResponse(user))
+
 }
 
 func (u *userHandler) login(c *gin.Context) {

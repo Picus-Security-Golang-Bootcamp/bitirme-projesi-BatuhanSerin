@@ -22,28 +22,25 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 }
 
 func (u *UserRepository) Migration() {
-	zap.L().Debug("category Migration")
+	zap.L().Debug("user Migration")
 
 	if err := u.db.AutoMigrate(&models.User{}); err != nil {
-		zap.L().Error("category Migration Failed", zap.Error(err))
+		zap.L().Error("user Migration Failed", zap.Error(err))
 	}
 }
 
-// func (u *UserRepository) getUsers() *[]models.User {
-// 	zap.L().Debug("user.repo.getUsers")
+func (u *UserRepository) createUser(user *models.User) (*models.User, error) {
+	zap.L().Debug("user.repo.create", zap.Any("user", user))
 
-// 	var users = &[]models.User{}
+	if err := u.db.Create(user).Error; err != nil {
+		zap.L().Error("user.repo.create Failed", zap.Error(err))
+		return nil, err
+	}
+	return user, nil
+}
 
-// 	if err := u.db.Find(&users).Error; err != nil {
-// 		zap.L().Error("user.repo.getUsers Failed", zap.Error(err))
-// 		return nil
-// 	}
-
-// 	return users
-// }
 func (u *UserRepository) getUser(email, password *string) (*models.User, error) {
 	users := []*models.User{}
-	//users2 := &models.User{}
 	pass := *password
 	emailValue := *email
 
@@ -52,13 +49,11 @@ func (u *UserRepository) getUser(email, password *string) (*models.User, error) 
 		return nil, err
 	}
 	zap.L().Debug("user.repo.getUser", zap.Any("email", email), zap.Any("password", password))
-	//fmt.Printf("%s 11111111111 %s ", emailValue, pass)
+
 	for _, v := range users {
-		//fmt.Printf("%s %s11 %s %s ", v.Email, v.Password, emailValue, pass)
+
 		if v.Email == emailValue && v.Password == pass {
-			//fmt.Print("%s %s    3333311 %s %s ", v.Email, v.Password, emailValue, pass)
-			// fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-			// fmt.Print(v.Email, v.Password)
+
 			return v, nil
 		}
 	}
@@ -78,7 +73,7 @@ func (r *UserRepository) Login(email, password string) (jwt.Claims, string, erro
 		"exp":    time.Now().Add(time.Hour * 72).Unix(),
 	})
 	tokenString, _ := jwtPackage.GenerateToken(token, cfg.GetSecretKey())
-	//log.Println(tokenString)
+
 	return token.Claims, tokenString, nil
 }
 
