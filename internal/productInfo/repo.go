@@ -13,6 +13,36 @@ type ProductInfoRepository struct {
 func NewProductInfoRepository(db *gorm.DB) *ProductInfoRepository {
 	return &ProductInfoRepository{db: db}
 }
+func (r *ProductInfoRepository) dec(productInfo *models.ProductInfo) (*models.ProductInfo, error) {
+
+	if err := r.db.Where("product_id = ?", productInfo.ProductID).Find(&productInfo).Error; err == nil {
+		productInfo.Quantity--
+		if productInfo.Quantity > 0 {
+			if err := r.db.Model(&productInfo).Where("basket_id = ?", &productInfo.BasketID).Where("product_id = ?", &productInfo.ProductID).Update("quantity", &(productInfo.Quantity)).Error; err != nil {
+				zap.L().Error("productInfo.repo.create Failed", zap.Error(err))
+				return nil, err
+			}
+		} else if productInfo.Quantity == 0 {
+			if err := r.db.Where("product_id = ?", productInfo.ProductID).Delete(&productInfo).Error; err != nil {
+				zap.L().Error("productInfo.repo.create Failed", zap.Error(err))
+				return nil, err
+			}
+		}
+	}
+
+	return productInfo, nil
+}
+func (r *ProductInfoRepository) add(productInfo *models.ProductInfo) (*models.ProductInfo, error) {
+
+	if err := r.db.Where("product_id = ?", productInfo.ProductID).Find(&productInfo).Error; err == nil {
+		productInfo.Quantity++
+		if err := r.db.Model(&productInfo).Where("basket_id = ?", &productInfo.BasketID).Where("product_id = ?", &productInfo.ProductID).Update("quantity", &(productInfo.Quantity)).Error; err != nil {
+			zap.L().Error("productInfo.repo.create Failed", zap.Error(err))
+			return nil, err
+		}
+	}
+	return productInfo, nil
+}
 
 func (r *ProductInfoRepository) create(productInfo *models.ProductInfo) (*models.ProductInfo, error) {
 	zap.L().Debug("ProductInfoRepository.repo.create", zap.Any("product", productInfo))
