@@ -8,8 +8,10 @@ import (
 
 	check "github.com/BatuhanSerin/final-project/check"
 	"github.com/BatuhanSerin/final-project/internal/User"
+	"github.com/BatuhanSerin/final-project/internal/basket"
 	"github.com/BatuhanSerin/final-project/internal/category"
 	"github.com/BatuhanSerin/final-project/internal/product"
+	productInfo "github.com/BatuhanSerin/final-project/internal/productInfo"
 	"github.com/BatuhanSerin/final-project/package/config"
 	db "github.com/BatuhanSerin/final-project/package/database"
 	"github.com/BatuhanSerin/final-project/package/graceful"
@@ -52,6 +54,7 @@ func main() {
 	categoryRouter := rootRouter.Group("/categories")
 	productRouter := rootRouter.Group("/products")
 	userRouter := rootRouter.Group("/users")
+	basketRouter := rootRouter.Group("/basket")
 
 	// Product Repo
 	productRepo := product.NewProductRepository(DB)
@@ -68,6 +71,16 @@ func main() {
 	userRepo := User.NewUserRepository(DB)
 	userRepo.Migration()
 	User.NewUserHandler(userRouter, userRepo, config.GetSecretKey())
+
+	// Basket Repo
+	basketRepo := basket.NewBasketRepository(DB)
+	basketRepo.Migration()
+	basket.NewBasketHandler(basketRouter, basketRepo, config.GetSecretKey())
+
+	// Product Info Repo
+	productInfoRepo := productInfo.NewProductInfoRepository(DB)
+	productInfoRepo.Migration()
+	productInfo.NewProductInfoHandler(basketRouter, productInfoRepo, config.GetSecretKey())
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

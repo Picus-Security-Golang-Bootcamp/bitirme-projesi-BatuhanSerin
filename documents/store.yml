@@ -97,13 +97,13 @@ paths:
               description: "date in UTC when token expires"
         "400":
           description: "Invalid username/password supplied"
-  /user/logout:
+  /basket:
     get:
       tags:
-        - "user"
-      summary: "Logs out current logged in user session"
+        - "basket"
+      summary: "Basket activities"
       description: ""
-      operationId: "logoutUser"
+      operationId: "basketUser"
       produces:
         - "application/xml"
         - "application/json"
@@ -124,8 +124,6 @@ securityDefinitions:
     type: "apiKey"
     name: "api_key"
     in: "header"
-
-
 definitions:
   Category:
     type: "object"
@@ -210,4 +208,43 @@ definitions:
       details:
         description: a (key, value) map.
         type: object
+  Basket:
+    type: "object"
+    properties:
+      userID:
+        type: "integer"
+      products:
+        type: "array"
+        items:
+          $ref: "#/definitions/ProductInfo"
+      totalPrice:
+        type: "number"
+        format: "float64"
+  BasketWithoutRequired:
+    type: "object"
+    properties:
+      userID:
+        type: "integer"
+      totalPrice:
+        type: "number"
+        format: "float64"
+  ProductInfo:
+    type: "object"
+    required:
+      - "productsIDs"
+    properties:
+      productsIDs:
+        type: "integer"
+        format: "int64"
+      quantity:
+        type: "integer"
+        format: "int64"
+      basket:
+        type: "object"
+        $ref: "#/definitions/BasketWithoutRequired"
+
+ 
+  
+
+
 

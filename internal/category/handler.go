@@ -40,7 +40,6 @@ func (ct *categoryHandler) create(c *gin.Context) {
 	}
 
 	//category, err := ct.service.create(responseToCategory(categoryBody))
-	//pagenation
 
 	category, err := ct.repo.create(responseToCategory(categoryBody))
 	if err != nil {
