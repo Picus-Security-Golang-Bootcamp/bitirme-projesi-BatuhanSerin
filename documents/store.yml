@@ -152,6 +152,9 @@ definitions:
       category:
         type: "object"
         $ref: "#/definitions/CategoryWithoutRequired"
+      productInfo:
+        type: "object"
+        $ref: "#/definitions/ProductInfo"
       name:
         type: "string"
       stock:
@@ -211,12 +214,17 @@ definitions:
   Basket:
     type: "object"
     properties:
+      productID:
+        type: "integer"
+      quantity:
+        type: "integer"
+        format: "int64"
       userID:
         type: "integer"
       products:
         type: "array"
         items:
-          $ref: "#/definitions/ProductInfo"
+          $ref: "#/definitions/Product"
       totalPrice:
         type: "number"
         format: "float64"

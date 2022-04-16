@@ -23,6 +23,7 @@ func NewProductHandler(r *gin.RouterGroup, repo *ProductRepository, secret strin
 	r.Use(middleware.Authorization(secret))
 	r.POST("/create", p.create)
 	r.POST("/createBulk", p.createBulk)
+
 }
 func (p *productHandler) getByName(c *gin.Context) {
 	name := c.Param("name")

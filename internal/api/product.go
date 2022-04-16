@@ -33,6 +33,9 @@ type Product struct {
 	// Required: true
 	Price *float64 `json:"price"`
 
+	// product info
+	ProductInfo *ProductInfo `json:"productInfo,omitempty"`
+
 	// stock
 	// Required: true
 	Stock *int64 `json:"stock"`
@@ -51,6 +54,10 @@ func (m *Product) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePrice(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateProductInfo(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -101,6 +108,25 @@ func (m *Product) validatePrice(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Product) validateProductInfo(formats strfmt.Registry) error {
+	if swag.IsZero(m.ProductInfo) { // not required
+		return nil
+	}
+
+	if m.ProductInfo != nil {
+		if err := m.ProductInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("productInfo")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("productInfo")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Product) validateStock(formats strfmt.Registry) error {
 
 	if err := validate.Required("stock", "body", m.Stock); err != nil {
@@ -118,6 +144,10 @@ func (m *Product) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateProductInfo(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -132,6 +162,22 @@ func (m *Product) contextValidateCategory(ctx context.Context, formats strfmt.Re
 				return ve.ValidateName("category")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("category")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Product) contextValidateProductInfo(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.ProductInfo != nil {
+		if err := m.ProductInfo.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("productInfo")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("productInfo")
 			}
 			return err
 		}

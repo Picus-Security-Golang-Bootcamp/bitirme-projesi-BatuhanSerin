@@ -11,7 +11,6 @@ import (
 	"github.com/BatuhanSerin/final-project/internal/basket"
 	"github.com/BatuhanSerin/final-project/internal/category"
 	"github.com/BatuhanSerin/final-project/internal/product"
-	productInfo "github.com/BatuhanSerin/final-project/internal/productInfo"
 	"github.com/BatuhanSerin/final-project/package/config"
 	db "github.com/BatuhanSerin/final-project/package/database"
 	"github.com/BatuhanSerin/final-project/package/graceful"
@@ -76,11 +75,6 @@ func main() {
 	basketRepo := basket.NewBasketRepository(DB)
 	basketRepo.Migration()
 	basket.NewBasketHandler(basketRouter, basketRepo, config.GetSecretKey())
-
-	// Product Info Repo
-	productInfoRepo := productInfo.NewProductInfoRepository(DB)
-	productInfoRepo.Migration()
-	productInfo.NewProductInfoHandler(basketRouter, productInfoRepo, config.GetSecretKey())
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

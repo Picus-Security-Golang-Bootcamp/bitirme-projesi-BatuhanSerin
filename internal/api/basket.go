@@ -19,8 +19,14 @@ import (
 // swagger:model Basket
 type Basket struct {
 
+	// product ID
+	ProductID int64 `json:"productID,omitempty"`
+
 	// products
-	Products []*ProductInfo `json:"products"`
+	Products []*Product `json:"products"`
+
+	// quantity
+	Quantity int64 `json:"quantity,omitempty"`
 
 	// total price
 	TotalPrice float64 `json:"totalPrice,omitempty"`

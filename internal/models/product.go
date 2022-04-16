@@ -6,6 +6,7 @@ import (
 
 type Product struct {
 	gorm.Model
+	ID         uint
 	Name       *string `gorm:"unique"`
 	Price      float64
 	Stock      int64

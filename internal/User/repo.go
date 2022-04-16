@@ -21,14 +21,6 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (u *UserRepository) Migration() {
-	zap.L().Debug("user Migration")
-
-	if err := u.db.AutoMigrate(&models.User{}); err != nil {
-		zap.L().Error("user Migration Failed", zap.Error(err))
-	}
-}
-
 func (u *UserRepository) createUser(user *models.User) (*models.User, error) {
 	zap.L().Debug("user.repo.create", zap.Any("user", user))
 
@@ -94,4 +86,12 @@ func (r *UserRepository) VerifyToken(c *gin.Context) {
 
 	return
 
+}
+
+func (u *UserRepository) Migration() {
+	zap.L().Debug("user Migration")
+
+	if err := u.db.AutoMigrate(&models.User{}); err != nil {
+		zap.L().Error("user Migration Failed", zap.Error(err))
+	}
 }

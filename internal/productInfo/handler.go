@@ -20,12 +20,20 @@ func NewProductInfoHandler(r *gin.RouterGroup, repo *ProductInfoRepository, secr
 	r.POST("/create", p.create) //Create product if it doesn't exist
 	r.POST("/add", p.add)
 	r.POST("/dec", p.dec)
-
+	r.GET("/get", p.get)
 	// r.GET("/:id", p.getByID)
 	// r.GET("/search/:name", p.getByName)
 	// r.Use(middleware.Authorization(secret))
 	// r.POST("/create", p.create)
 	// r.POST("/createBulk", p.createBulk)
+}
+func (p *productInfoHandler) get(c *gin.Context) {
+	category, err := p.repo.get("3")
+	if err != nil {
+		c.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+	c.JSON(http.StatusOK, productInfoToResponse(category))
 }
 func (p *productInfoHandler) dec(c *gin.Context) {
 
@@ -40,7 +48,8 @@ func (p *productInfoHandler) dec(c *gin.Context) {
 		c.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
-
+	c.JSON(http.StatusOK, productInfoBody)
+	c.JSON(http.StatusOK, responseToProductInfo(productInfoBody))
 	productInfo, err := p.repo.dec(responseToProductInfo(productInfoBody))
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))

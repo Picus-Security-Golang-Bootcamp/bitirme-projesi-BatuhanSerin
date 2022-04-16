@@ -6,7 +6,9 @@ import (
 
 type Basket struct {
 	gorm.Model
-	Products   []ProductInfo
-	TotalPrice float64 `gorm:"type:decimal"`
-	UserID     int64   `gorm:"type:bigint"`
+	Quantity   uint
+	ProductID  uint
+	Products   []Product `gorm:"foreignKey:ID;references:ProductID"`
+	TotalPrice float64   `gorm:"type:decimal"`
+	UserID     int64     `gorm:"type:bigint"`
 }

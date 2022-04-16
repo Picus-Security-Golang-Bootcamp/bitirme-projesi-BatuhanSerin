@@ -7,7 +7,7 @@ import (
 type User struct {
 	gorm.Model
 	Email     string `gorm:"unique"`
-	Password  string `gorm:"not null"`
+	Password  string `gorm:"unique"`
 	IsAdmin   bool
 	ID        uint
 	FirstName string

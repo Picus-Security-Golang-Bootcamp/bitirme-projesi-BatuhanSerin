@@ -32,7 +32,7 @@ func (r *ProductRepository) create(product *models.Product) (*models.Product, er
 
 func (r *ProductRepository) createBulk(csvLines [][]string) ([]models.Product, error) {
 
-	var products = []models.Product{}
+	products := []models.Product{}
 
 	for _, line := range csvLines[1:] {
 

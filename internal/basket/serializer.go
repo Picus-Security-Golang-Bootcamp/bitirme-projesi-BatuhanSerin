@@ -3,14 +3,31 @@ package basket
 import (
 	"github.com/BatuhanSerin/final-project/internal/api"
 	"github.com/BatuhanSerin/final-project/internal/models"
-	"gorm.io/gorm"
+	"github.com/BatuhanSerin/final-project/internal/product"
 )
+
+func basketToResponse(b *models.Basket) *api.Basket {
+
+	products := make([]*api.Product, 0)
+
+	for _, p := range b.Products {
+		products = append(products, product.ProductToResponseWithoutCategory(&p))
+	}
+
+	return &api.Basket{
+		UserID:     b.UserID,
+		ProductID:  int64(b.ProductID),
+		Quantity:   int64(b.Quantity),
+		TotalPrice: b.TotalPrice,
+		Products:   products,
+	}
+}
 
 func responseToBasket(b *api.Basket) *models.Basket {
 
 	return &models.Basket{
-		Model:      gorm.Model{ID: uint(b.UserID)},
-		UserID:     b.UserID,
-		TotalPrice: b.TotalPrice,
+		Quantity:  uint(b.Quantity),
+		UserID:    b.UserID,
+		ProductID: uint(b.ProductID),
 	}
 }
