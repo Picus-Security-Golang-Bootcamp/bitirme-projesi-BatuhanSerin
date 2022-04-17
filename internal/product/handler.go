@@ -3,6 +3,7 @@ package product
 import (
 	"encoding/csv"
 	"net/http"
+	"sync"
 
 	"github.com/BatuhanSerin/final-project/internal/api"
 	"github.com/BatuhanSerin/final-project/internal/httpErrors"
@@ -57,8 +58,12 @@ func (p *productHandler) createBulk(c *gin.Context) {
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 	}
+	mux := &sync.RWMutex{}
+	mux.Lock()
 
 	products, err := p.repo.createBulk(csvLines)
+
+	mux.Unlock()
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 	}
@@ -79,8 +84,12 @@ func (p *productHandler) create(c *gin.Context) {
 		c.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
+	mux := &sync.RWMutex{}
+	mux.Lock()
 
 	product, err := p.repo.create(responseToProduct(productBody))
+
+	mux.Unlock()
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 		return

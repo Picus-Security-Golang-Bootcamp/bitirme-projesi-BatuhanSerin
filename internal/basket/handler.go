@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/BatuhanSerin/final-project/internal/api"
 	"github.com/BatuhanSerin/final-project/internal/httpErrors"
@@ -68,6 +69,7 @@ func (b *basketHandler) VerifyToken(c *gin.Context) {
 func (b *basketHandler) create(c *gin.Context) {
 
 	basketBody := Verify(c)
+	mux := &sync.RWMutex{}
 
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 0)
 	quantity, _ := strconv.ParseInt(c.Param("quantity"), 10, 0)
@@ -75,7 +77,12 @@ func (b *basketHandler) create(c *gin.Context) {
 	basketBody.ProductID = int64(id)
 	basketBody.Quantity = int64(quantity)
 
+	mux.Lock()
+
 	basket, err := b.repo.Create(c, responseToBasket(basketBody))
+
+	mux.Unlock()
+
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 		c.JSON(http.StatusOK, gin.H{
@@ -89,11 +96,17 @@ func (b *basketHandler) create(c *gin.Context) {
 //increment increments a product quantity by 1
 func (b *basketHandler) increment(c *gin.Context) {
 	basketBody := Verify(c)
+	mux := &sync.RWMutex{}
 
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 0)
 	basketBody.ProductID = int64(id)
 
+	mux.Lock()
+
 	basket, err := b.repo.Increment(c, responseToBasket(basketBody))
+
+	mux.Unlock()
+
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 		c.JSON(http.StatusOK, gin.H{
@@ -108,10 +121,17 @@ func (b *basketHandler) increment(c *gin.Context) {
 func (b *basketHandler) decrement(c *gin.Context) {
 	basketBody := Verify(c)
 
+	mux := &sync.RWMutex{}
+
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 0)
 	basketBody.ProductID = int64(id)
 
+	mux.Lock()
+
 	basket, err := b.repo.Decrement(c, responseToBasket(basketBody))
+
+	mux.Unlock()
+
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 		return
@@ -145,8 +165,13 @@ func (b *basketHandler) listCartItems(c *gin.Context) {
 func (b *basketHandler) buy(c *gin.Context) {
 	basketBody := Verify(c)
 	totalPrice := []float64{0} //slice of float64 to use out of scope
+	mux := &sync.RWMutex{}
+	mux.Lock()
 
 	basket, err := b.repo.Buy(c, responseToBasket(basketBody))
+
+	mux.Unlock()
+
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 		return
@@ -167,8 +192,13 @@ func (b *basketHandler) buy(c *gin.Context) {
 func (b *basketHandler) order(c *gin.Context) {
 	basketBody := Verify(c)
 	totalPrice := []float64{0} //slice of float64 to use out of scope
+	mux := &sync.RWMutex{}
+	mux.Lock()
 
 	basket, err := b.repo.Order(c, responseToBasket(basketBody))
+
+	mux.Unlock()
+
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 		return
@@ -189,8 +219,12 @@ func (b *basketHandler) order(c *gin.Context) {
 func (b *basketHandler) cancel(c *gin.Context) {
 	basketBody := Verify(c)
 	totalPrice := []float64{0} //slice of float64 to use out of scope
+	mux := &sync.RWMutex{}
+	mux.Lock()
 
 	basket, err := b.repo.Cancel(c, responseToBasket(basketBody))
+
+	mux.Unlock()
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
 		return
