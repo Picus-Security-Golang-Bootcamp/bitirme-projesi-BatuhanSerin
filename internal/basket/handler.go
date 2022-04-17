@@ -27,6 +27,9 @@ func NewBasketHandler(r *gin.RouterGroup, repo *BasketRepository, secret string)
 	r.POST("/inc/:id", b.increment)
 	r.POST("/dec/:id", b.decrement)
 	r.GET("/list", b.listCartItems)
+	r.GET("/buy", b.buy)
+	r.GET("/order", b.order)
+	r.GET("cancel", b.cancel)
 	r.GET("/:id", b.getByID)
 }
 
@@ -124,14 +127,82 @@ func (b *basketHandler) listCartItems(c *gin.Context) {
 		c.JSON(httpErrors.ErrorResponse(err))
 		return
 	}
-	for i := 0; i < len(basket); i++ {
-		c.JSON(http.StatusOK, basketToResponse(basket[i]))
-		totalPrice[0] = totalPrice[0] + basket[i].TotalPrice
+
+	for _, v := range basket {
+		c.JSON(http.StatusOK, basketToResponse(v))
+		totalPrice[0] = totalPrice[0] + v.TotalPrice
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"The Total Price is": fmt.Sprintf("%v", totalPrice[0]),
 	})
+
+}
+func (b *basketHandler) buy(c *gin.Context) {
+	basketBody := Verify(c)
+	totalPrice := []float64{0} //slice of float64 to use out of scope
+
+	basket, err := b.repo.Buy(c, responseToBasket(basketBody))
+	if err != nil {
+		c.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+
+	for _, v := range basket {
+		c.JSON(http.StatusOK, basketToResponse(v))
+		totalPrice[0] = totalPrice[0] + v.TotalPrice
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"The Total Price is": fmt.Sprintf("%v", totalPrice[0]),
+	})
+
+}
+func (b *basketHandler) order(c *gin.Context) {
+	basketBody := Verify(c)
+	totalPrice := []float64{0} //slice of float64 to use out of scope
+
+	basket, err := b.repo.Order(c, responseToBasket(basketBody))
+	if err != nil {
+		c.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+
+	for _, v := range basket {
+		c.JSON(http.StatusOK, basketToResponse(v))
+		totalPrice[0] = totalPrice[0] + v.TotalPrice
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"The Total Price is": fmt.Sprintf("%v", totalPrice[0]),
+	})
+
+}
+func (b *basketHandler) cancel(c *gin.Context) {
+	basketBody := Verify(c)
+	totalPrice := []float64{0} //slice of float64 to use out of scope
+
+	basket, err := b.repo.Cancel(c, responseToBasket(basketBody))
+	if err != nil {
+		c.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"Canceled order(s)": "\n",
+	})
+
+	for _, v := range basket {
+		c.JSON(http.StatusOK, basketToResponse(v))
+	}
+	if len(basket) > 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"The Total Price is": fmt.Sprintf("%v", totalPrice[0]),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "You Can Not Cancel An Order That Has Ordered before 14 days",
+		})
+	}
 
 }
 

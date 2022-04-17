@@ -3,6 +3,7 @@ package basket
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/BatuhanSerin/final-project/internal/models"
 	"github.com/gin-gonic/gin"
@@ -131,6 +132,140 @@ func (b *BasketRepository) ListCartItems(c *gin.Context, basket *models.Basket) 
 	}
 
 	return items, nil
+}
+
+func (b *BasketRepository) Buy(c *gin.Context, basket *models.Basket) ([]*models.Basket, error) {
+
+	zap.L().Debug("basket.repo.Buy")
+
+	items := make([]*models.Basket, 0)
+
+	//Checks if basket has at least one item
+
+	if err := b.db.Model(&basket).Where(fmt.Sprintf("user_id = %v", basket.UserID)).Where(fmt.Sprintf("product_id = %v", basket.ProductID)).First(basket).Error; err == nil {
+		//If basket is empty
+		return nil, nil
+	} else {
+		rows, _ := b.db.Preload("Products").Model(&basket).Where(fmt.Sprintf("user_id = %v", basket.UserID)).Rows()
+		defer rows.Close()
+
+		for rows.Next() {
+			var basketCopy *models.Basket
+
+			b.db.ScanRows(rows, &basketCopy)
+
+			if err := b.db.Preload("Products").First(basketCopy, basketCopy.ID).Error; err != nil {
+				zap.L().Error("basket.repo.ListCartItems Failed", zap.Error(err))
+				return nil, err
+			} else {
+				product := basketCopy.Products[0]
+				stock := product.Stock - int64(basketCopy.Quantity)
+				if err := b.db.Model(&product).Update("Stock", stock).Error; err != nil {
+					zap.L().Error("basket.repo.ListCartItems Failed", zap.Error(err))
+					return nil, err
+				}
+				if err := b.db.Delete(basketCopy).Error; err != nil {
+					zap.L().Error("basket.repo.ListCartItems Failed", zap.Error(err))
+					return nil, err
+				}
+			}
+			calculatePrice(basketCopy)
+			items = append(items, basketCopy)
+		}
+
+		return items, nil
+	}
+}
+func (b *BasketRepository) Order(c *gin.Context, basket *models.Basket) ([]*models.Basket, error) {
+
+	zap.L().Debug("basket.repo.Order")
+
+	rows, _ := b.db.Preload("Products").Model(&basket).Where(fmt.Sprintf("user_id = %v", basket.UserID)).Unscoped().Rows()
+	defer rows.Close()
+
+	items := make([]*models.Basket, 0)
+
+	for rows.Next() {
+		var basketCopy *models.Basket
+		// ScanRows is a method of `gorm.DB`, it can be used to scan a row into a struct
+		b.db.ScanRows(rows, &basketCopy)
+
+		if err := b.db.Preload("Products").Unscoped().First(basketCopy, basketCopy.ID).Error; err != nil {
+			zap.L().Error("basket.repo.ListCartItems Failed", zap.Error(err))
+			return nil, err
+		}
+		if basketCopy.DeletedAt.Valid == true {
+
+			calculatePrice(basketCopy)
+			items = append(items, basketCopy)
+		}
+	}
+	return items, nil
+
+}
+
+func (b *BasketRepository) Cancel(c *gin.Context, basket *models.Basket) ([]*models.Basket, error) {
+
+	zap.L().Debug("basket.repo.Cancel")
+
+	// b.db.Preload("Products").First(basket, 43)
+	// t := time.Now().UTC()
+	// _, _, day := t.Date()
+	// fmt.Printf("\n\n\nsimdi\n%v\n\n\n", day)
+	// fmt.Printf("\n\n\nsimdi\n%v\n\n\n", t)
+	// fmt.Printf("\n\n\ncreat\n%v\n\n\n", basket.CreatedAt)
+
+	// _, _, dayDel := basket.CreatedAt.Date()
+	// fmt.Printf("\n\n\ncreated at\n%v\n\n\n", dayDel)
+
+	// diff := t.Sub(basket.CreatedAt)
+	// hour := int(diff.Hours())
+	// if hour > 336 {
+	// 	fmt.Printf("\n\n\n14ten buyukse\n%v\n\n\n", hour)
+	// }
+	// println(hour)
+
+	t := time.Now().UTC()
+	fmt.Printf("\n\n\n14ten buyukse\n%v\n\n\n", gorm.DeletedAt{})
+
+	rows, _ := b.db.Preload("Products").Model(&basket).Where(fmt.Sprintf("user_id = %v", basket.UserID)).Unscoped().Rows()
+	defer rows.Close()
+
+	items := make([]*models.Basket, 0)
+
+	for rows.Next() {
+		var basketCopy *models.Basket
+		// ScanRows is a method of `gorm.DB`, it can be used to scan a row into a struct
+		b.db.ScanRows(rows, &basketCopy)
+
+		if err := b.db.Preload("Products").Unscoped().First(basketCopy, basketCopy.ID).Error; err != nil {
+			zap.L().Error("basket.repo.ListCartItems Failed", zap.Error(err))
+			return nil, err
+		}
+		if basketCopy.DeletedAt.Valid == true {
+
+			diff := t.Sub(basketCopy.DeletedAt.Time)
+			hour := int(diff.Hours()) * -1
+			fmt.Printf("\n\n\n14ten buyukse\n%v\n\n\n", hour)
+			if hour < 336 {
+
+				newbasket := models.Basket{
+					UserID:    basketCopy.UserID,
+					ProductID: basketCopy.ProductID,
+					Quantity:  basketCopy.Quantity,
+				}
+
+				if err := b.db.Create(&newbasket).Error; err != nil {
+					zap.L().Error("basket.repo.Create Failed", zap.Error(err))
+					return nil, err
+				}
+				calculatePrice(basketCopy)
+				items = append(items, basketCopy)
+			}
+		}
+	}
+	return items, nil
+
 }
 
 func (b *BasketRepository) GetByID(c *gin.Context, id string) (*models.Basket, error) {
