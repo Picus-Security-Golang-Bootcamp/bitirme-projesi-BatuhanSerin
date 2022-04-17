@@ -26,6 +26,8 @@ func (b *BasketRepository) Migration() {
 		zap.L().Error("basket Migration Failed", zap.Error(err))
 	}
 }
+
+//VerifyToken verifies token
 func (b *BasketRepository) VerifyToken(c *gin.Context, basket *models.Basket) (*models.Basket, error) {
 
 	zap.L().Debug("basket.repo.VerifyToken")
@@ -39,6 +41,7 @@ func (b *BasketRepository) VerifyToken(c *gin.Context, basket *models.Basket) (*
 
 }
 
+//Increment increments quantity of product
 func (b *BasketRepository) Increment(c *gin.Context, basket *models.Basket) (*models.Basket, error) {
 
 	zap.L().Debug("basket.repo.Increment")
@@ -66,6 +69,8 @@ func (b *BasketRepository) Increment(c *gin.Context, basket *models.Basket) (*mo
 	return basket, nil
 
 }
+
+//Decrement decrements quantity of product
 func (b *BasketRepository) Decrement(c *gin.Context, basket *models.Basket) (*models.Basket, error) {
 
 	zap.L().Debug("basket.repo.Decrement")
@@ -91,6 +96,7 @@ func (b *BasketRepository) Decrement(c *gin.Context, basket *models.Basket) (*mo
 
 }
 
+//Create creates new basket
 func (b *BasketRepository) Create(c *gin.Context, basket *models.Basket) (*models.Basket, error) {
 
 	//CheckStock checks stock of product is enough for quantity
@@ -109,6 +115,7 @@ func (b *BasketRepository) Create(c *gin.Context, basket *models.Basket) (*model
 	return basket, nil
 }
 
+//ListCartItems returns list of cart items
 func (b *BasketRepository) ListCartItems(c *gin.Context, basket *models.Basket) ([]*models.Basket, error) {
 
 	zap.L().Debug("basket.repo.ListCartItems")
@@ -134,6 +141,7 @@ func (b *BasketRepository) ListCartItems(c *gin.Context, basket *models.Basket) 
 	return items, nil
 }
 
+//Buy buys items
 func (b *BasketRepository) Buy(c *gin.Context, basket *models.Basket) ([]*models.Basket, error) {
 
 	zap.L().Debug("basket.repo.Buy")
@@ -176,6 +184,8 @@ func (b *BasketRepository) Buy(c *gin.Context, basket *models.Basket) ([]*models
 		return items, nil
 	}
 }
+
+//Order orders items
 func (b *BasketRepository) Order(c *gin.Context, basket *models.Basket) ([]*models.Basket, error) {
 
 	zap.L().Debug("basket.repo.Order")
@@ -204,27 +214,10 @@ func (b *BasketRepository) Order(c *gin.Context, basket *models.Basket) ([]*mode
 
 }
 
+//Cancel cancels items
 func (b *BasketRepository) Cancel(c *gin.Context, basket *models.Basket) ([]*models.Basket, error) {
 
 	zap.L().Debug("basket.repo.Cancel")
-
-	// b.db.Preload("Products").First(basket, 43)
-	// t := time.Now().UTC()
-	// _, _, day := t.Date()
-	// fmt.Printf("\n\n\nsimdi\n%v\n\n\n", day)
-	// fmt.Printf("\n\n\nsimdi\n%v\n\n\n", t)
-	// fmt.Printf("\n\n\ncreat\n%v\n\n\n", basket.CreatedAt)
-
-	// _, _, dayDel := basket.CreatedAt.Date()
-	// fmt.Printf("\n\n\ncreated at\n%v\n\n\n", dayDel)
-
-	// diff := t.Sub(basket.CreatedAt)
-	// hour := int(diff.Hours())
-	// if hour > 336 {
-	// 	fmt.Printf("\n\n\n14ten buyukse\n%v\n\n\n", hour)
-	// }
-	// println(hour)
-
 	t := time.Now().UTC()
 	fmt.Printf("\n\n\n14ten buyukse\n%v\n\n\n", gorm.DeletedAt{})
 

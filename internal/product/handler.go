@@ -25,6 +25,8 @@ func NewProductHandler(r *gin.RouterGroup, repo *ProductRepository, secret strin
 	r.POST("/createBulk", p.createBulk)
 
 }
+
+//getByName is a function to get product by name
 func (p *productHandler) getByName(c *gin.Context) {
 	name := c.Param("name")
 
@@ -36,6 +38,7 @@ func (p *productHandler) getByName(c *gin.Context) {
 	c.JSON(http.StatusOK, ProductToResponseWithoutCategory(product))
 }
 
+//createBulk creates new products from uploaded csv file
 func (p *productHandler) createBulk(c *gin.Context) {
 
 	file, err := c.FormFile("file")
@@ -63,6 +66,7 @@ func (p *productHandler) createBulk(c *gin.Context) {
 
 }
 
+//create creates a new product
 func (p *productHandler) create(c *gin.Context) {
 	productBody := &api.Product{}
 
@@ -86,6 +90,7 @@ func (p *productHandler) create(c *gin.Context) {
 
 }
 
+//getAll is a function to get all products
 func (p *productHandler) getAll(c *gin.Context) {
 	products, err := p.repo.getAll(c)
 	if err != nil {
@@ -95,6 +100,7 @@ func (p *productHandler) getAll(c *gin.Context) {
 	c.JSON(http.StatusOK, productsToResponseWithoutCategory(products))
 }
 
+//getByID is a function to get product by id
 func (p *productHandler) getByID(c *gin.Context) {
 	id := c.Param("id")
 	product, err := p.repo.getByID(id)

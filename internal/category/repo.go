@@ -14,6 +14,7 @@ func NewCategoryRepository(db *gorm.DB) *CategoryRepository {
 	return &CategoryRepository{db: db}
 }
 
+//create creates a new category
 func (r *CategoryRepository) create(category *models.Category) (*models.Category, error) {
 	zap.L().Debug("category.repo.create", zap.Any("category", category))
 
@@ -24,19 +25,7 @@ func (r *CategoryRepository) create(category *models.Category) (*models.Category
 	return category, nil
 }
 
-// func (r *CategoryRepository) getAll() (*[]models.Category, error) {
-// 	zap.L().Debug("Get All categorys")
-
-// 	var categorys = &[]models.Category{}
-
-// 	if err := r.db.Preload("Category").Find(&categorys).Error; err != nil {
-// 		zap.L().Error("Get All categorys Failed", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	return categorys, nil
-// }
-
+//getByID gets a category by id
 func (r *CategoryRepository) getByID(id string) (*models.Category, error) {
 	zap.L().Debug("Get category By ID", zap.Any("id", id))
 
@@ -50,6 +39,7 @@ func (r *CategoryRepository) getByID(id string) (*models.Category, error) {
 	return category, nil
 }
 
+//update updates a category
 func (r *CategoryRepository) update(category *models.Category) (*models.Category, error) {
 	zap.L().Debug("Update category", zap.Any("category", category))
 
@@ -61,6 +51,7 @@ func (r *CategoryRepository) update(category *models.Category) (*models.Category
 	return category, nil
 }
 
+//delete deletes a category
 func (r *CategoryRepository) delete(id string) error {
 	zap.L().Debug("Delete category", zap.Any("id", id))
 
@@ -78,6 +69,7 @@ func (r *CategoryRepository) delete(id string) error {
 	return nil
 }
 
+//Migrate migrates the database
 func (r *CategoryRepository) Migration() {
 	zap.L().Debug("category Migration")
 

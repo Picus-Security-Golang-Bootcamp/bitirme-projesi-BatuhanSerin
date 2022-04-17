@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//CheckDependency is a function to check dependency
 func CheckDependency(DB *gorm.DB, r *gin.Engine) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

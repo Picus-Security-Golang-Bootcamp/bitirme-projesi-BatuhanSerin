@@ -22,6 +22,8 @@ func categoryToResponse(c *models.Category) *api.Category {
 		Products: products,
 	}
 }
+
+//categoryToResponseWithoutProducts converts category to response without products
 func categoryToResponseWithoutProducts(c *models.Category) *api.Category {
 
 	return &api.Category{
@@ -30,6 +32,7 @@ func categoryToResponseWithoutProducts(c *models.Category) *api.Category {
 	}
 }
 
+//categoriesToResponse converts categories to response
 func categoriesToResponse(cs *[]models.Category) []*api.Category {
 	categories := make([]*api.Category, 0)
 	for _, c := range *cs {
@@ -38,6 +41,7 @@ func categoriesToResponse(cs *[]models.Category) []*api.Category {
 	return categories
 }
 
+//responseToCategory converts response to category
 func responseToCategory(c *api.Category) *models.Category {
 	return &models.Category{
 		Model: gorm.Model{ID: uint(c.ID)},

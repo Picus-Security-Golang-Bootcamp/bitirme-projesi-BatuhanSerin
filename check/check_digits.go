@@ -2,6 +2,7 @@ package check
 
 import "strconv"
 
+//CheckDigits is a function to check digits
 func CheckDigits(s string) bool {
 	n, _ := strconv.Atoi(s)
 	count := 0

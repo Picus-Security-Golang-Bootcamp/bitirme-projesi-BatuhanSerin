@@ -5,6 +5,7 @@ import (
 	"github.com/BatuhanSerin/final-project/internal/models"
 )
 
+//UserToResponse converts user to response
 func UserToResponse(u *models.User) *api.User {
 
 	return &api.User{
@@ -16,10 +17,10 @@ func UserToResponse(u *models.User) *api.User {
 	}
 }
 
+//responseToUser converts response to user
 func responseToUser(u *api.User) *models.User {
 
 	return &models.User{
-		//Model:     gorm.Model{ID: uint(u.ID)},
 		Email:     u.Email,
 		Password:  u.Password,
 		FirstName: u.FirstName,

@@ -20,10 +20,7 @@ import (
 )
 
 func main() {
-	//product or client env
-	//cfg, err := config.LoadConfig("./package/config/%s_config",os.Getenv("ENV"))
 
-	//set env for local development
 	cfg, err := config.LoadConfig("./package/config/local-config")
 	if err != nil {
 		log.Fatalf("LoadConfig: %v", err)
@@ -35,11 +32,7 @@ func main() {
 
 	//Set db
 	DB := db.Connect(cfg)
-
 	gin.SetMode(gin.ReleaseMode)
-
-	// Uses midlewares as Logger()
-	//and Recovery() that not uses panic, uses 500 error instead
 	r := gin.Default()
 
 	srv := &http.Server{
@@ -49,6 +42,7 @@ func main() {
 		WriteTimeout: time.Duration(cfg.ServerConfig.WriteTimeoutSecs * int64(time.Second)),
 	}
 
+	//Set routes
 	rootRouter := r.Group(cfg.ServerConfig.RoutePrefix)
 	categoryRouter := rootRouter.Group("/categories")
 	productRouter := rootRouter.Group("/products")
@@ -57,7 +51,6 @@ func main() {
 
 	// Product Repo
 	productRepo := product.NewProductRepository(DB)
-	//service(repo,..) create  ederken silinmişi yeniden create etsin
 	productRepo.Migration()
 	product.NewProductHandler(productRouter, productRepo, config.GetSecretKey())
 
@@ -84,9 +77,6 @@ func main() {
 
 	//CheckDependency checks database connection with ping and checks if server is running
 	check.CheckDependency(DB, r)
-	// r.Use(gin.BasicAuth(gin.Accounts{
-	// 	cfg.ServerConfig.User: cfg.ServerConfig.Password,
-	// 	}))
 
 	zap.L().Info("Server started", zap.String("port", cfg.ServerConfig.Port))
 

@@ -7,6 +7,7 @@ import (
 	"github.com/BatuhanSerin/final-project/internal/models"
 )
 
+//ProductToResponse converts product to response
 func ProductToResponse(p *models.Product) *api.Product {
 
 	return &api.Product{
@@ -21,6 +22,7 @@ func ProductToResponse(p *models.Product) *api.Product {
 	}
 }
 
+//ProductToResponseWithoutCategory converts product to response without category
 func ProductToResponseWithoutCategory(p *models.Product) *api.Product {
 
 	return &api.Product{
@@ -31,6 +33,7 @@ func ProductToResponseWithoutCategory(p *models.Product) *api.Product {
 	}
 }
 
+//productsToResponseWithoutCategory converts products to response without category
 func productsToResponseWithoutCategory(ps *[]models.Product) []*api.Product {
 	products := make([]*api.Product, 0)
 	for _, p := range *ps {
@@ -39,6 +42,7 @@ func productsToResponseWithoutCategory(ps *[]models.Product) []*api.Product {
 	return products
 }
 
+//productsToResponse converts products to response
 func productsToResponse(ps *[]models.Product) []*api.Product {
 	products := make([]*api.Product, 0)
 	for _, p := range *ps {
@@ -47,6 +51,7 @@ func productsToResponse(ps *[]models.Product) []*api.Product {
 	return products
 }
 
+//responseToProduct converts response to product
 func responseToProduct(p *api.Product) *models.Product {
 	return &models.Product{
 		Model:      gorm.Model{ID: uint(p.ID)},

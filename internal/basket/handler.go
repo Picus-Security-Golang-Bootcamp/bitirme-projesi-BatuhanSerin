@@ -33,6 +33,7 @@ func NewBasketHandler(r *gin.RouterGroup, repo *BasketRepository, secret string)
 	r.GET("/:id", b.getByID)
 }
 
+//VerifyToken is a middleware to verify token
 func (b *basketHandler) VerifyToken(c *gin.Context) {
 
 	tokenString := c.GetHeader("Authorization")
@@ -53,11 +54,8 @@ func (b *basketHandler) VerifyToken(c *gin.Context) {
 	ID := claims["userID"].(float64)
 
 	basketBody := &api.Basket{
-		// ProductsIDs: []int64{},
 		UserID: int64(ID),
 	}
-
-	//c.JSON(http.StatusOK, basketBody)
 
 	basket, err := b.repo.VerifyToken(c, responseToBasket(basketBody))
 	c.JSON(http.StatusOK, gin.H{
@@ -66,6 +64,7 @@ func (b *basketHandler) VerifyToken(c *gin.Context) {
 	c.JSON(http.StatusOK, basketToResponse(basket))
 }
 
+//create creates a new basket
 func (b *basketHandler) create(c *gin.Context) {
 
 	basketBody := Verify(c)
@@ -87,6 +86,7 @@ func (b *basketHandler) create(c *gin.Context) {
 	c.JSON(http.StatusOK, basketToResponse(basket))
 }
 
+//increment increments a product quantity by 1
 func (b *basketHandler) increment(c *gin.Context) {
 	basketBody := Verify(c)
 
@@ -104,6 +104,7 @@ func (b *basketHandler) increment(c *gin.Context) {
 	c.JSON(http.StatusOK, basketToResponse(basket))
 }
 
+//decrement decrements a product quantity by 1
 func (b *basketHandler) decrement(c *gin.Context) {
 	basketBody := Verify(c)
 
@@ -118,6 +119,7 @@ func (b *basketHandler) decrement(c *gin.Context) {
 	c.JSON(http.StatusOK, basketToResponse(basket))
 }
 
+//listCartItems lists all items on user basket
 func (b *basketHandler) listCartItems(c *gin.Context) {
 	basketBody := Verify(c)
 	totalPrice := []float64{0} //slice of float64 to use out of scope
@@ -138,6 +140,8 @@ func (b *basketHandler) listCartItems(c *gin.Context) {
 	})
 
 }
+
+//buy buys all items on user basket
 func (b *basketHandler) buy(c *gin.Context) {
 	basketBody := Verify(c)
 	totalPrice := []float64{0} //slice of float64 to use out of scope
@@ -158,6 +162,8 @@ func (b *basketHandler) buy(c *gin.Context) {
 	})
 
 }
+
+//order orders all items on user basket
 func (b *basketHandler) order(c *gin.Context) {
 	basketBody := Verify(c)
 	totalPrice := []float64{0} //slice of float64 to use out of scope
@@ -178,6 +184,8 @@ func (b *basketHandler) order(c *gin.Context) {
 	})
 
 }
+
+//cancel cancels order if 14 days have been not past
 func (b *basketHandler) cancel(c *gin.Context) {
 	basketBody := Verify(c)
 	totalPrice := []float64{0} //slice of float64 to use out of scope
@@ -206,6 +214,7 @@ func (b *basketHandler) cancel(c *gin.Context) {
 
 }
 
+//getByID gets a basket by id
 func (b *basketHandler) getByID(c *gin.Context) {
 	id := c.Param("id")
 	basket, err := b.repo.GetByID(c, id)

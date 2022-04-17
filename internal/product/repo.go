@@ -20,8 +20,9 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 	return &ProductRepository{db: db}
 }
 
+//create creates a new product
 func (r *ProductRepository) create(product *models.Product) (*models.Product, error) {
-	//zap.L().Debug("product.repo.create", zap.Any("product", product))
+	zap.L().Debug("product.repo.create", zap.Any("product", product))
 
 	if err := r.db.Create(product).Error; err != nil {
 		zap.L().Error("product.repo.create Failed", zap.Error(err))
@@ -30,6 +31,7 @@ func (r *ProductRepository) create(product *models.Product) (*models.Product, er
 	return product, nil
 }
 
+//createBulk creates new products from uploaded csv file
 func (r *ProductRepository) createBulk(csvLines [][]string) ([]models.Product, error) {
 
 	products := []models.Product{}
@@ -65,6 +67,7 @@ func (r *ProductRepository) createBulk(csvLines [][]string) ([]models.Product, e
 
 }
 
+//getAll returns all products
 func (r *ProductRepository) getAll(c *gin.Context) (*[]models.Product, error) {
 	zap.L().Debug("product.repo.getAll")
 
@@ -78,6 +81,7 @@ func (r *ProductRepository) getAll(c *gin.Context) (*[]models.Product, error) {
 	return products, nil
 }
 
+//getByName returns product by name
 func (r *ProductRepository) getByName(name string) (*models.Product, error) {
 	zap.L().Debug("product.repo.getByName", zap.Any("name", name))
 
@@ -91,6 +95,7 @@ func (r *ProductRepository) getByName(name string) (*models.Product, error) {
 	return product, nil
 }
 
+//getByID returns product by id
 func (r *ProductRepository) getByID(id string) (*models.Product, error) {
 	zap.L().Debug("product.repo.getByID", zap.Any("id", id))
 
@@ -104,6 +109,7 @@ func (r *ProductRepository) getByID(id string) (*models.Product, error) {
 	return product, nil
 }
 
+//update updates product
 func (r *ProductRepository) update(product *models.Product) (*models.Product, error) {
 	zap.L().Debug("product.repo.update", zap.Any("product", product))
 
@@ -115,6 +121,7 @@ func (r *ProductRepository) update(product *models.Product) (*models.Product, er
 	return product, nil
 }
 
+//delete deletes product
 func (r *ProductRepository) delete(product *models.Product) error {
 	zap.L().Debug("product.repo.delete", zap.Any("product", product))
 
@@ -126,6 +133,7 @@ func (r *ProductRepository) delete(product *models.Product) error {
 	return nil
 }
 
+//Migration creates table for products
 func (r *ProductRepository) Migration() {
 	zap.L().Debug("Product Migration")
 

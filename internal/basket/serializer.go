@@ -6,6 +6,7 @@ import (
 	"github.com/BatuhanSerin/final-project/internal/product"
 )
 
+//basketToResponse converts basket to response
 func basketToResponse(b *models.Basket) *api.Basket {
 
 	products := make([]*api.Product, 0)
@@ -23,6 +24,7 @@ func basketToResponse(b *models.Basket) *api.Basket {
 	}
 }
 
+//responseToBasket converts response to basket
 func responseToBasket(b *api.Basket) *models.Basket {
 
 	return &models.Basket{

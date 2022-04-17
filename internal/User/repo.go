@@ -21,6 +21,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
+//createUser is a function to create a new user
 func (u *UserRepository) createUser(user *models.User) (*models.User, error) {
 	zap.L().Debug("user.repo.create", zap.Any("user", user))
 
@@ -31,6 +32,7 @@ func (u *UserRepository) createUser(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
+//getUser gets a user by email and password
 func (u *UserRepository) getUser(email, password *string) (*models.User, error) {
 	users := []*models.User{}
 	pass := *password
@@ -52,6 +54,7 @@ func (u *UserRepository) getUser(email, password *string) (*models.User, error) 
 	return nil, nil
 }
 
+//Login is a function to login a user
 func (r *UserRepository) Login(email, password string) (jwt.Claims, string, error) {
 	var user *models.User
 	if err := r.db.Where("email = ? AND password = ?", email, password).First(&user).Error; err != nil {
@@ -69,6 +72,7 @@ func (r *UserRepository) Login(email, password string) (jwt.Claims, string, erro
 	return token.Claims, tokenString, nil
 }
 
+//VerifyToken is a function to verify token
 func (r *UserRepository) VerifyToken(c *gin.Context) {
 
 	tokenString := c.GetHeader("Authorization")
@@ -88,6 +92,7 @@ func (r *UserRepository) VerifyToken(c *gin.Context) {
 
 }
 
+//Migration is a function to migrate the database
 func (u *UserRepository) Migration() {
 	zap.L().Debug("user Migration")
 

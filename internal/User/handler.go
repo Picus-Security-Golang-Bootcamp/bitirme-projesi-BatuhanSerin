@@ -24,6 +24,8 @@ func NewUserHandler(r *gin.RouterGroup, repo *UserRepository, secret string) {
 	r.Use(middleware.Authorization(secret))
 	r.POST("/verify", u.VerifyToken)
 }
+
+//signup creates a new user
 func (u *userHandler) signup(c *gin.Context) {
 	var userBody *api.User
 
@@ -69,6 +71,7 @@ func (u *userHandler) signup(c *gin.Context) {
 	c.JSON(http.StatusOK, token)
 }
 
+//login logs in a user
 func (u *userHandler) login(c *gin.Context) {
 	var user *api.Login
 
@@ -96,6 +99,7 @@ func (u *userHandler) login(c *gin.Context) {
 
 }
 
+//VerifyToken verifies the token
 func (u *userHandler) VerifyToken(c *gin.Context) {
 	u.repo.VerifyToken(c)
 	c.JSON(http.StatusOK, gin.H{

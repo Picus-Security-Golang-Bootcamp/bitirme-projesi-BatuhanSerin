@@ -26,6 +26,7 @@ func NewCategoryHandler(r *gin.RouterGroup, repo *CategoryRepository, secret str
 	r.DELETE("/:id", c.delete)
 }
 
+//create creates a new category
 func (ct *categoryHandler) create(c *gin.Context) {
 	categoryBody := &api.Category{}
 
@@ -39,8 +40,6 @@ func (ct *categoryHandler) create(c *gin.Context) {
 		return
 	}
 
-	//category, err := ct.service.create(responseToCategory(categoryBody))
-
 	category, err := ct.repo.create(responseToCategory(categoryBody))
 	if err != nil {
 		c.JSON(httpErrors.ErrorResponse(err))
@@ -51,6 +50,7 @@ func (ct *categoryHandler) create(c *gin.Context) {
 
 }
 
+//getByID gets a category by id
 func (ct *categoryHandler) getByID(c *gin.Context) {
 	id := c.Param("id")
 	category, err := ct.repo.getByID(id)
@@ -61,6 +61,7 @@ func (ct *categoryHandler) getByID(c *gin.Context) {
 	c.JSON(http.StatusOK, categoryToResponse(category))
 }
 
+//update updates a category
 func (ct *categoryHandler) update(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -88,6 +89,7 @@ func (ct *categoryHandler) update(c *gin.Context) {
 	c.JSON(http.StatusOK, categoryToResponse(category))
 }
 
+//delete deletes a category
 func (ct *categoryHandler) delete(c *gin.Context) {
 	id := c.Param("id")
 	category, err := ct.repo.getByID(id)
