@@ -39,3 +39,8 @@ func CheckStock(b *BasketRepository, c *gin.Context, basket *models.Basket) erro
 	}
 	return nil
 }
+
+func calculatePrice(basket *models.Basket) {
+	price := float64(basket.Quantity) * basket.Products[0].Price
+	basket.TotalPrice = price
+}

@@ -1,6 +1,7 @@
 package basket
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -25,6 +26,7 @@ func NewBasketHandler(r *gin.RouterGroup, repo *BasketRepository, secret string)
 	r.POST("/create/:id/:quantity", b.create)
 	r.POST("/inc/:id", b.increment)
 	r.POST("/dec/:id", b.decrement)
+	r.GET("/list", b.listCartItems)
 	r.GET("/:id", b.getByID)
 }
 
@@ -60,6 +62,7 @@ func (b *basketHandler) VerifyToken(c *gin.Context) {
 	})
 	c.JSON(http.StatusOK, basketToResponse(basket))
 }
+
 func (b *basketHandler) create(c *gin.Context) {
 
 	basketBody := Verify(c)
@@ -110,6 +113,26 @@ func (b *basketHandler) decrement(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, basketToResponse(basket))
+}
+
+func (b *basketHandler) listCartItems(c *gin.Context) {
+	basketBody := Verify(c)
+	totalPrice := []float64{0} //slice of float64 to use out of scope
+
+	basket, err := b.repo.ListCartItems(c, responseToBasket(basketBody))
+	if err != nil {
+		c.JSON(httpErrors.ErrorResponse(err))
+		return
+	}
+	for i := 0; i < len(basket); i++ {
+		c.JSON(http.StatusOK, basketToResponse(basket[i]))
+		totalPrice[0] = totalPrice[0] + basket[i].TotalPrice
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"The Total Price is": fmt.Sprintf("%v", totalPrice[0]),
+	})
+
 }
 
 func (b *basketHandler) getByID(c *gin.Context) {

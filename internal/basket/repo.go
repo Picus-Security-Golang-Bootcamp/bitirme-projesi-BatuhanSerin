@@ -52,7 +52,7 @@ func (b *BasketRepository) Increment(c *gin.Context, basket *models.Basket) (*mo
 
 		basket.Quantity++
 		quantity := strconv.FormatUint(uint64(basket.Quantity), 10)
-
+		//CheckStock checks stock of product is enough for quantity
 		if err := CheckStock(b, c, basket); err != nil {
 			return nil, err
 		}
@@ -92,6 +92,7 @@ func (b *BasketRepository) Decrement(c *gin.Context, basket *models.Basket) (*mo
 
 func (b *BasketRepository) Create(c *gin.Context, basket *models.Basket) (*models.Basket, error) {
 
+	//CheckStock checks stock of product is enough for quantity
 	if err := CheckStock(b, c, basket); err != nil {
 		return nil, err
 	}
@@ -105,6 +106,31 @@ func (b *BasketRepository) Create(c *gin.Context, basket *models.Basket) (*model
 		}
 	}
 	return basket, nil
+}
+
+func (b *BasketRepository) ListCartItems(c *gin.Context, basket *models.Basket) ([]*models.Basket, error) {
+
+	zap.L().Debug("basket.repo.ListCartItems")
+
+	rows, _ := b.db.Preload("Products").Model(&basket).Where(fmt.Sprintf("user_id = %v", basket.UserID)).Rows()
+	defer rows.Close()
+
+	items := make([]*models.Basket, 0)
+
+	for rows.Next() {
+		var basketCopy *models.Basket
+		// ScanRows is a method of `gorm.DB`, it can be used to scan a row into a struct
+		b.db.ScanRows(rows, &basketCopy)
+
+		if err := b.db.Preload("Products").First(basketCopy, basketCopy.ID).Error; err != nil {
+			zap.L().Error("basket.repo.ListCartItems Failed", zap.Error(err))
+			return nil, err
+		}
+		calculatePrice(basketCopy)
+		items = append(items, basketCopy)
+	}
+
+	return items, nil
 }
 
 func (b *BasketRepository) GetByID(c *gin.Context, id string) (*models.Basket, error) {
